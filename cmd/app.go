@@ -4,7 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx"
+	"github.com/hadygust/movie/internal/handler"
+	"github.com/hadygust/movie/internal/repository"
+	"github.com/hadygust/movie/internal/service"
+	"gorm.io/gorm"
 )
 
 // mount
@@ -15,17 +18,26 @@ func (app *application) mount() *gin.Engine {
 		ctx.Data(http.StatusOK, "application/json", []byte("Hello World"))
 	})
 
+	userRepo := repository.NewUserRepository(&app.db)
+	userService := service.NewUserService(userRepo)
+	userHandler := handler.NewUserHandler(userService)
+
+	users := r.Group("/user")
+	users.GET("/", userHandler.AllUser)
+	users.POST("/register", userHandler.Register)
+	users.POST("/login", userHandler.Login)
 	return r
 }
 
 // run
 func (app *application) run(h *gin.Engine) {
+
 	h.Run(app.config.address)
 }
 
 type application struct {
 	config config
-	db     pgx.Conn
+	db     gorm.DB
 }
 
 type config struct {
