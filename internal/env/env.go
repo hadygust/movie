@@ -1,6 +1,7 @@
 package env
 
 import (
+	"errors"
 	"fmt"
 	"os"
 )
@@ -14,4 +15,13 @@ func GetString(key string, fallback string) string {
 	}
 
 	return res
+}
+
+func GetSecret() (string, error) {
+	res := os.Getenv("JWT_SECRET")
+	if res == "" {
+		return res, errors.New("secret key not found")
+	}
+
+	return res, nil
 }

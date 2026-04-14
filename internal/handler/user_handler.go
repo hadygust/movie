@@ -22,7 +22,7 @@ func (h *UserHandler) AllUser(c *gin.Context) {
 	users, err := h.svc.AllUser()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
+			"error": err.Error(),
 		})
 	}
 
@@ -72,5 +72,19 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
+	c.SetCookie("Authentication", res, 60*15, "", "", false, true)
+
 	c.JSON(http.StatusOK, res)
+}
+
+func (h *UserHandler) LoggedIn(c *gin.Context) {
+	user, ok := c.Get("user")
+
+	if !ok {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "cannot find context value for 'user'",
+		})
+	}
+
+	c.JSON(http.StatusOK, user)
 }

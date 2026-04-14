@@ -23,8 +23,16 @@ func (repo *UserRepository) AllUser() ([]model.User, error) {
 	return users, err
 }
 
+func (repo *UserRepository) FindByID(id string) (model.User, error) {
+	var user model.User
+
+	err := repo.db.First(&user, "id = ?", id).Error
+
+	return user, err
+}
+
 func (repo *UserRepository) CreateUser(user model.User) (model.User, error) {
-	res := repo.db.Create(user)
+	res := repo.db.Create(&user)
 	err := res.Error
 
 	return user, err
